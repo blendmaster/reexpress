@@ -15,3 +15,7 @@ body {
   fill: rgba(0,0,0,0.05);
   cursor: pointer;
 }
+
+footer {
+  font-size: 80%;
+}
