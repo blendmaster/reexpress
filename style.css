@@ -12,5 +12,6 @@ body {
   fill: none;  
 }
 .point {
-  fill: rgba(0,0,0,0.5);
+  fill: rgba(0,0,0,0.05);
+  cursor: pointer;
 }
