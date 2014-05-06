@@ -11,15 +11,10 @@
 </div>
 
 <div>
-  <svg id=input width=500 height=500>
-    <circle id=cursor></circle>
-    <line x1=0 y1=10 x2=100 y2=100 id=l1></line>
-    <line x1=0 y1=40 x2=300 y2=200 id=l2></line>
-    <line x1=30 y1=70 x2=400 y2=200 id=l3></line>
-    <image id=si1 x=0 y=3></image>
-    <image id=si2 x=100 y=200></image>
-    <image id=si3 x=300 y=400></image>
-  </svg>
+  <canvas id=input width=500 height=500>
+    Yo, you need a modern browser that works with
+    canvas elements!
+  </canvas>
   <canvas id=output width=500 height=500>
     Yo, you need a modern browser that works with
     canvas elements!
@@ -33,5 +28,6 @@
   <a href=https://github.com/blendmaster/reexpress>Source on Github.</a>
 </footer>
 
+<script src=util.js></script>
 <script src=d3.min.js></script>
 <script src=blend.js></script>

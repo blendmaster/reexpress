@@ -307,18 +307,6 @@ function draw() {
   $points.attr('cx', x).attr('cy', y);
 }
 
-function debounce(delay, fn) {
-  var context, args, timeout, call = function () {
-    fn.apply(context, args);
-  };
-  return function () {
-    context = this;
-    args = arguments;
-    clearTimeout(timeout);
-    timeout = setTimeout(call, delay);
-  }
-}
-
 // convenience for image with source
 // String -> Image
 function image(src) {
