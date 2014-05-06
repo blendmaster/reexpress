@@ -19,3 +19,8 @@ body {
 footer {
   font-size: 80%;
 }
+
+#l1, #l2, #l3 {
+  stroke: red;
+  fill: none;
+}
