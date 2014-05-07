@@ -7,11 +7,17 @@ body {
   stroke: red;
   fill: none;  
 }
-.path, .pending {
+.path, .pending, .apath {
   stroke: red;
   fill: none;
   stroke-width: 7px;
 }
+
+.apath {
+  stroke: rgba(0, 0, 255, 0.5);
+
+}
+
 .shape {
   stroke: blue;
   fill: none;  

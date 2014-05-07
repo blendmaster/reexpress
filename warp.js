@@ -34,9 +34,9 @@ var images = [
 ];
 
 var outputs = [
-  document.getElementById('o1').getContext('2d'),
-  document.getElementById('o2').getContext('2d'),
-  document.getElementById('o3').getContext('2d'),
+  document.getElementById('o1'),
+  document.getElementById('o2'),
+  document.getElementById('o3'),
 ]
 
 var $triangle = d3.select('#triangle')
@@ -247,9 +247,12 @@ var b2 =
 var b3 =
   bindEditor(controls[2], '#p2', correlate(controls[2], controls[0], controls[1]));
 
-// in the callback, the selected line/nodes are highlighted
-// across all three images, and the nodes are adjusted so all
-// three images have the same number of control lines
+function drawAverage(svg, average) {
+  var d = d3.select(svg).select('.avg').selectAll('.apath').data(average)
+  d.exit().remove();
+  d.enter().append('path').attr('class', 'apath');
+  d.attr('d', line);
+}
 
 // ((x1, y1), (x2, y2), (x3, y3)) -> (x, y) -> (u, v, w)
 // w is technically redundant, since u + v + w = 1
@@ -290,6 +293,25 @@ buf.width = WIDTH;
 buf.height = HEIGHT;
 var btx = buf.getContext('2d')
 
+function averageControl(controls, weights) {
+  var ret = [];
+  controls[0].forEach(function (c1, i) {
+    var c2 = controls[1][i];
+    var c3 = controls[2][i];
+
+    var ps = []
+    for (var j = 0, len = c1.length; j < len; ++j) {
+      var p1 = c1[j]; var p2 = c2[j]; var p3 = c3[j];
+      ps.push([
+        p1[0] * weights[0] + p2[0] * weights[1] + p3[0] * weights[2],
+        p1[1] * weights[0] + p2[1] * weights[1] + p3[1] * weights[2]
+      ]);
+    }
+    ret.push(ps);
+  });
+  return ret;
+}
+
 var debounced = debounce(100, draw);
 function draw() {
   // redraw input bindings
@@ -297,44 +319,62 @@ function draw() {
   b2();
   b3();
 
-  // XXX for now, warp image 1 to image2's control points
-  var sourceControl = controls[0];
-  var destControl = controls[1];
-  var pairedLines = toPairedLines(sourceControl, destControl);
-
-  var out = outputs[0];
-
-  btx.drawImage(images[0], 0, 0, WIDTH, HEIGHT);
-  // XXX sample points, because sampling every point is kinda slow
-  // TODO move this off main thread (worker), or use webGL with
-  // texture sampling.
-  out.fillRect(0, 0, 250, 250);
-  for (var i = 0; i < WIDTH; i += 10) {
-    for (var j = 0; j < HEIGHT; j += 10) {
-      var src = warp(pairedLines, [i, j]);
-      // draw source pixel to destination pixel
-      //
-      if (src[0] >= 0 && src[0] < WIDTH
-       && src[1] >= 0 && src[1] < HEIGHT) {
-
-        out.drawImage(buf, src[0], src[1], 10, 10, i, j, 10, 10);
-       } else {
-         warp(pairedLines, [i, j])
-       }
-    }
-  }
-
   // calculate barycentric coordinates of cursor
   var bary = barycentric(points, cursor);
+
+  // calculate average of control points.
+  var destControl = averageControl(controls, bary);
+
+  drawAverage('#p0', destControl);
+  drawAverage('#p1', destControl);
+  drawAverage('#p2', destControl);
+
+  for (var p = 0; p < 3; ++p) {
+    var sourceControl = controls[p];
+    var pairedLines = toPairedLines(destControl, sourceControl);
+    var out = outputs[p].getContext('2d');
+
+    // since the actual image is unscaled, draw the image to
+    // be sampled onto a canvas with correct scaling
+    btx.drawImage(images[p], 0, 0, WIDTH, HEIGHT);
+    btx.strokeStyle = 'green';
+    btx.lineWidth = 5;
+    for (var i = 0, len = sourceControl.length; i < len; ++i) {
+      var path = sourceControl[i];
+      btx.beginPath();
+      btx.moveTo(path[0][0], path[0][1]);
+      for (var j = 1, len2 = path.length; j < len2; ++j) {
+        btx.lineTo(path[j][0], path[j][1]);
+      }
+      btx.stroke();
+    }
+
+    // XXX sample points, because sampling every point is kinda slow
+    // TODO move this off main thread (worker), or use webGL with
+    // texture sampling.
+    out.clearRect(0, 0, 250, 250);
+    for (var i = 0; i < WIDTH; i += 2) {
+      for (var j = 0; j < HEIGHT; j += 2) {
+        var src = warp(pairedLines, [i, j]);
+        // draw source pixel to destination pixel
+        //
+        if (src[0] >= 0 && src[0] < WIDTH
+         && src[1] >= 0 && src[1] < HEIGHT) {
+
+          out.drawImage(buf, src[0], src[1], 2, 2, i, j, 2, 2);
+        }
+      }
+    }
+  }
 
   // now draw output, with barycentric points as weight
   otx.clearRect(0, 0, 250, 250);
   otx.globalAlpha = bary[0];
-  otx.drawImage(images[0], 0, 0, 250, 250);
+  otx.drawImage(outputs[0], 0, 0, 250, 250);
   otx.globalAlpha = bary[1];
-  otx.drawImage(images[1], 0, 0, 250, 250);
+  otx.drawImage(outputs[1], 0, 0, 250, 250);
   otx.globalAlpha = bary[2];
-  otx.drawImage(images[2], 0, 0, 250, 250);
+  otx.drawImage(outputs[2], 0, 0, 250, 250);
 }
 
 inputs.forEach(function (input, i) {
