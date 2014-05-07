@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang=en>
+<meta charset=utf-8>
+<link rel=stylesheet href=style.css>
+<title>Beier-Neely Polymorphing</title>
+
+<div>
+  <label>Image 1: <input type=file id=i1></label>
+  <label>Image 2: <input type=file id=i2></label>
+  <label>Image 3: <input type=file id=i3></label>
+</div>
+
+<div>
+  <canvas id=p1 width=250 height=250></canvas>
+  <canvas id=p2 width=250 height=250></canvas>
+  <canvas id=p3 width=250 height=250></canvas>
+  <svg id=input width=250 height=250>
+    <image class=image id=si0></image>
+    <image class=image id=si1></image>
+    <image class=image id=si2></image>
+    <path id=triangle></path>
+    <circle id=cursor r=10></circle>
+  </svg>
+</div>
+<div>
+  <canvas id=o1 width=250 height=250></canvas>
+  <canvas id=o2 width=250 height=250></canvas>
+  <canvas id=o3 width=250 height=250></canvas>
+  <canvas id=output width=250 height=250>
+    Yo, you need a modern browser that works with
+    canvas elements!
+  </canvas>
+</div>
+
+<footer>
+  Demo of Beier-Neely polymorphing between multiple
+  input images.
+  Authored by Steven Ruppert and Daria Tolmacheva, 2014.
+  <a href=https://github.com/blendmaster/reexpress>Source on Github.</a>
+</footer>
+
+<script src=util.js></script>
+<script src=d3.min.js></script>
+<script src=warp.js></script>
