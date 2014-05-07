@@ -8,7 +8,6 @@
 // http://gfx.cs.princeton.edu/gfx/pubs/Buck_2000_PHA/index.php
 "use strict";
 
-var itx = document.getElementById('input').getContext('2d');
 var otx = document.getElementById('output').getContext('2d');
 
 var points = [
@@ -31,6 +30,18 @@ var images = [
   new Image,
 ];
 
+var $triangle = d3.select('#triangle')
+  , $cursor = d3.select('#cursor')
+  , $images = d3.selectAll('.image');
+
+$images.data(points)
+  .attr('x', function (d) { return d[0] - 50; })
+  .attr('y', function (d) { return d[1] - 50; })
+  .attr('width', 100)
+  .attr('height', 100);
+
+$triangle.attr('d', d3.svg.line()(points) + 'Z');
+
 // ((x1, y1), (x2, y2), (x3, y3)) -> (x, y) -> (u, v, w)
 // w is technically redundant, since u + v + w = 1
 // https://en.wikipedia.org/wiki/Barycentric_coordinate_system#Converting_to_barycentric_coordinates
@@ -50,25 +61,8 @@ function barycentric(t, cursor) {
 }
 
 function draw() {
-  // first draw input state
-  itx.clearRect(0, 0, 500, 500);
-  itx.beginPath();
-  itx.moveTo(points[0][0], points[0][1]);
-  itx.lineTo(points[1][0], points[1][1]);
-  itx.lineTo(points[2][0], points[2][1]);
-  itx.closePath();
-  itx.stroke();
-
-  itx.drawImage(images[0], points[0][0] - 50, points[0][1] - 50,
-                100, 100);
-  itx.drawImage(images[1], points[1][0] - 50, points[1][1] - 50,
-                100, 100);
-  itx.drawImage(images[2], points[2][0] - 50, points[2][1] - 50,
-                100, 100);
-
-  itx.fillRect(cursor[0] - 5, cursor[1] - 5, 10, 10);
-
-  // then calculate barycentric coordinates of cursor
+  $cursor.attr('cx', cursor[0]).attr('cy', cursor[1]);
+  // calculate barycentric coordinates of cursor
   var bary = barycentric(points, cursor);
 
   // now draw output, with barycentric points as weight
@@ -83,8 +77,6 @@ function draw() {
 
 var debounced = debounce(10, draw);
 
-// bind a file input to a point on a canvas.
-// String -> CanvasContext -> Int -> Int -> ()
 inputs.forEach(function (input, i) {
   function bind() {
     if (input.files.length === 0) return;
@@ -92,6 +84,10 @@ inputs.forEach(function (input, i) {
     var url = window.URL.createObjectURL(input.files[0]);
     var img = images[i];
     img.src = url;
+
+    var simg = d3.select('#si' + i);
+    simg.attr('xlink:href', url);
+
     img.onload = function () {
       window.URL.revokeObjectURL(img.src); // don't need it anymore
       debounced();
@@ -115,6 +111,6 @@ var drag = d3.behavior.drag()
     debounced();
   });
 
-d3.select('#input').call(drag);
+$cursor.call(drag);
 
 draw();
