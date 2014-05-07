@@ -312,12 +312,21 @@ function averageControl(controls, weights) {
   return ret;
 }
 
+
 var debounced = debounce(100, draw);
+['a', 'b', 'p'].forEach(function(id) {
+  document.getElementById(id).addEventListener('input', debounced);
+})
 function draw() {
   // redraw input bindings
   b1();
   b2();
   b3();
+
+  var aa = parseFloat(document.getElementById('a').value);
+  var bb = parseFloat(document.getElementById('b').value);
+  var pp = parseFloat(document.getElementById('p').value);
+
 
   // calculate barycentric coordinates of cursor
   var bary = barycentric(points, cursor);
@@ -355,7 +364,7 @@ function draw() {
     out.clearRect(0, 0, 250, 250);
     for (var i = 0; i < WIDTH; i += 2) {
       for (var j = 0; j < HEIGHT; j += 2) {
-        var src = warp(pairedLines, [i, j]);
+        var src = warp(pairedLines, [i, j], pp, aa, bb);
         // draw source pixel to destination pixel
         //
         if (src[0] >= 0 && src[0] < WIDTH
