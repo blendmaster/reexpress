@@ -116,7 +116,9 @@ function bindEditor(paths, svgId, callback) {
     s.exit().remove();
     s.enter().append('g')
       .attr('class', 'control')
-      .append('path').attr('class', 'path')
+      .append('path').attr('class', function (_, i) {
+        return 'path path-' + i; // for correlation
+      })
       .on('click', function (d) { // add point to line
         var pos = d3.mouse(svg[0][0]);
         // find where we are in line
@@ -146,7 +148,18 @@ function bindEditor(paths, svgId, callback) {
     var p = s.selectAll('.point').data(function (d) { return d });
     p.exit().remove();
     p.enter().append('circle')
-      .attr('class', 'point')
+      .attr('class', function (_, i, j) {
+        return 'point p-' + i + '-' + j;
+      })
+      // parallel hover
+      .on('mouseenter', function (_, i, j) {
+        d3.selectAll('.p-' + i + '-' + j)
+          .classed('hover', true)
+      })
+      .on('mouseleave', function (_, i, j) {
+        d3.selectAll('.p-' + i + '-' + j)
+          .classed('hover', false)
+      })
       .attr('r', 15)
       .call(pointDrag);
     p.attr('cx', function (d) { return d[0] });
@@ -181,7 +194,7 @@ function bindEditor(paths, svgId, callback) {
       callback();
     })
 
-  bind();
+  return bind;
 }
 
 var controls = [
@@ -190,9 +203,42 @@ var controls = [
   [[[80, 125], [160, 125]]],
 ];
 
-bindEditor(controls[0], '#p0', draw);
-bindEditor(controls[1], '#p1', draw);
-bindEditor(controls[2], '#p2', draw);
+function correlate(ours, t1, t2) {
+  return function () {
+    // update other two controls with new control points
+    while (t1.length > ours.length) t1.pop();
+    while (t2.length > ours.length) t2.pop();
+    ours.forEach(function (path, i) {
+      var p1 = t1[i], p2 = t2[i];
+      if (p1 != null) {
+        while (p1.length > path.length) p1.pop();
+        path.forEach(function (p, j) {
+          if (p1[j] == null) { p1[j] = [p[0], p[1]]; }
+        });
+      } else {
+        // copy value
+        t1[i] = path.map(function (p) { return [p[0], p[1]]});
+      }
+      if (p2 != null) {
+        while (p2.length > path.length) p2.pop();
+        path.forEach(function (p, j) {
+          if (p2[j] == null) { p2[j] = [p[0], p[1]]; }
+        });
+      } else {
+        // copy value
+        t2[i] = path.map(function (p) { return [p[0], p[1]]});
+      }
+    });
+    draw();
+  }
+}
+
+var b1 =
+  bindEditor(controls[0], '#p0', correlate(controls[0], controls[1], controls[2]));
+var b2 =
+  bindEditor(controls[1], '#p1', correlate(controls[1], controls[0], controls[2]));
+var b3 =
+  bindEditor(controls[2], '#p2', correlate(controls[2], controls[0], controls[1]));
 
 // in the callback, the selected line/nodes are highlighted
 // across all three images, and the nodes are adjusted so all
@@ -217,6 +263,9 @@ function barycentric(t, cursor) {
 }
 
 function draw() {
+  b1();
+  b2();
+  b3();
   // calculate barycentric coordinates of cursor
   var bary = barycentric(points, cursor);
 
