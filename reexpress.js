@@ -129,7 +129,7 @@ var
   // instead of writing this out manually.
   templates = {
     face: {
-      image: image("templates/face.png"),
+      image: image("models/face.png"),
       points: [
         [0, 0],
         [0, 0],
@@ -139,7 +139,7 @@ var
     },
     eyes: [
       {
-        image: image("templates/eye1.png"),
+        image: image("models/eye1.png"),
         points: [
           [0, 0],
           [0, 0],
@@ -177,7 +177,7 @@ var
     ],
     lips: [
       {
-        image: image("templates/lips1.png"),
+        image: image("models/lips1.png"),
         points: [
           [0, 0],
           [0, 0],
@@ -314,3 +314,31 @@ function image(src) {
   img.src = src;
   return img;
 }
+
+document.getElementById('save-eyes').addEventListener('click', function () {
+  prompt('eyes', JSON.stringify(input.eyes));
+});
+document.getElementById('save-mouth').addEventListener('click', function () {
+  prompt('mouth', JSON.stringify(input.mouth));
+});
+
+var input = document.getElementById('inimg');
+
+function bind() {
+  if (input.files.length === 0) {
+    d3.select('#sinimg').attr('xlink:href', null);
+  } else {
+    var url = window.URL.createObjectURL(input.files[0]);
+    d3.select('#sinimg').attr('xlink:href', url);
+  }
+}
+
+input.addEventListener('change', bind);
+
+// when page is loaded, the input element should
+// retain its selection, so also try to bind right now.
+bind();
+
+document.getElementById('reset').addEventListener('click', function () {
+  setTimeout(bind, 100);
+});

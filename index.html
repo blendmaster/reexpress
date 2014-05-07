@@ -5,7 +5,17 @@
 <title>Reexpress</title>
 
 <div>
+  <form id=imgform>
+    <label>Input Image: <input type=file id=inimg></label>
+    <button id=reset type=reset>Clear</button>
+    <button id=save-eyes>Save Eyes</button>
+    <button id=save-mouth>Save Mouth</button>
+  </form>
+</div>
+
+<div>
   <svg id=input width=500 height=500>
+    <image id=sinimg x=0 y=0 width=500 height=500></image>
   </svg>
   <canvas id=output width=500 height=500>
     Yo, you need a modern browser that works with
@@ -14,7 +24,9 @@
 </div>
 
 <footer>
-  Authored by Steven Ruppert and Daria Tolmacheva
+  Facial expression warper.
+  Authored by Steven Ruppert and Daria Tolmacheva, 2014.
+  <a href=https://github.com/blendmaster/reexpress>Source on Github.</a>
 </footer>
 
 <script src=util.js></script>
