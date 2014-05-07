@@ -48,79 +48,79 @@ var
     // |   \_______/   |
     //
     eyes: {
-      left: {
-        brow: [
-          [10, 10],
-          [20, 10],
-          [30, 10],
+      "left": {
+        "brow": [
+          [34, 66],
+          [100, 50],
+          [169, 64.99999618530273]
         ],
-        lid: [
-          [10, 20],
-          [20, 20],
-          [30, 20],
+        "lid": [
+          [38, 141],
+          [105, 120],
+          [152, 143]
         ],
-        eye: [
-          [10, 30],
-          [20, 30],
-          [30, 30],
-          [30, 40],
-          [20, 40],
-          [10, 40],
-        ],
+        "eye": [
+          [64, 151],
+          [111, 140],
+          [146, 165],
+          [133, 201],
+          [79, 205],
+          [46, 182]
+        ]
       },
-      right: {
-        brow: [
-          [50, 10],
-          [60, 10],
-          [70, 10],
+      "right": {
+        "brow": [
+          [240, 71.99999618530273],
+          [300, 50],
+          [361, 70.99999618530273]
         ],
-        lid: [
-          [50, 20],
-          [60, 20],
-          [70, 20],
+        "lid": [
+          [245, 140],
+          [313, 125],
+          [367, 159]
         ],
-        eye: [
-          [50, 30],
-          [60, 30],
-          [70, 30],
-          [70, 40],
-          [60, 40],
-          [50, 40],
-        ],
+        "eye": [
+          [282, 148],
+          [322, 150],
+          [351, 176],
+          [339, 209],
+          [284, 209],
+          [245, 187]
+        ]
       }
     },
     mouth: {
-      nostrils: [
-        [30, 50],
-        [50, 50],
+      "nostrils": [
+        [170, 325.00001525878906],
+        [261, 327.00001525878906]
       ],
-      leftCheek: [
-        [20, 70],
-        [20, 90],
+      "leftCheek": [
+        [133, 355],
+        [106, 437]
       ],
-      rightCheek: [
-        [60, 70],
-        [60, 90],
+      "rightCheek": [
+        [285, 355],
+        [305, 443]
       ],
-      outerLips: [
-        [35, 80],
-        [40, 70],
-        [45, 70],
-        [50, 80],
-        [45, 90],
-        [40, 90],
+      "outerLips": [
+        [126, 398],
+        [200, 350],
+        [225, 350],
+        [276, 402],
+        [225, 450],
+        [200, 450]
       ],
-      innerLips: [
-        [36, 80],
-        [40, 75],
-        [45, 75],
-        [49, 80],
-        [45, 85],
-        [40, 85],
+      "innerLips": [
+        [162, 399],
+        [184, 382],
+        [228, 379],
+        [258, 401],
+        [225, 425],
+        [200, 425]
       ],
-      teeth: [
-        [40, 75],
-        [45, 75],
+      "teeth": [
+        [174, 391],
+        [243, 389]
       ]
     }
   },
@@ -255,12 +255,6 @@ var shapes = [
 // all points, for moving (flap mapped)
 var points = [].concat.apply([], lines.concat(shapes));
 
-// XXX scale points
-points.forEach(function (p) {
-  p[0] = p[0] * 5;
-  p[1] = p[1] * 5;
-});
-
 // setup dragging
 var dragdraw = debounce(100, draw);
 var drag = d3.behavior.drag()
@@ -322,20 +316,20 @@ document.getElementById('save-mouth').addEventListener('click', function () {
   prompt('mouth', JSON.stringify(input.mouth));
 });
 
-var input = document.getElementById('inimg');
+var inimg = document.getElementById('inimg');
 
 function bind() {
-  if (input.files.length === 0) {
+  if (inimg.files.length === 0) {
     d3.select('#sinimg').attr('xlink:href', null);
   } else {
-    var url = window.URL.createObjectURL(input.files[0]);
+    var url = window.URL.createObjectURL(inimg.files[0]);
     d3.select('#sinimg').attr('xlink:href', url);
   }
 }
 
-input.addEventListener('change', bind);
+inimg.addEventListener('change', bind);
 
-// when page is loaded, the input element should
+// when page is loaded, the inimg element should
 // retain its selection, so also try to bind right now.
 bind();
 
