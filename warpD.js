@@ -1,5 +1,7 @@
-var a = [[1,1], [2,2]];
-var b = [[1,1], [2,2]];
+"use strict";
+
+// var a = [[1,1], [2,2]];
+// var b = [[1,1], [2,2]];
 
 function perpendicular(vec) {
   	var x = vec[1];
@@ -14,7 +16,8 @@ function scalarMult(scalar, vec) {
 
 }
 
-
+// a = dest: [[x, y], [x, y]]
+// b = source: [[x, y], [x, y]]
 function warpLine(a, b) {
 	var P = a[0];
 	var Q = a[1];
@@ -24,7 +27,7 @@ function warpLine(a, b) {
 	return function (dest) {
 		var magnQP =  Math.sqrt( Math.pow(Q[0]-P[0], 2) + Math.pow(Q[1]-P[1], 2) );
 		var magnQPhat = Math.sqrt( Math.pow(Qhat[0]-Phat[0], 2) + Math.pow(Qhat[1]-Phat[1], 2) );
-		 
+
 		var u =  numeric.dot( numeric.sub(dest, P), numeric.sub(Q,P) ) / Math.pow(magnQP, 2);
 		var v =  numeric.dot( numeric.sub(dest, P), perpendicular( numeric.sub(Q,P) ) ) / magnQP;
 
@@ -33,11 +36,14 @@ function warpLine(a, b) {
 		var p = 0;
 		var a = 0.001;
 		var b = 0.3;
-		var weight = Math.pow(Math.pow(magnQP, p) / (a + v), b);
+		var weight = Math.pow(
+        Math.abs(Math.pow(magnQP, p) / (a + v)),
+        b);
 		return [displacement, weight];
 	}
 }
 
+// lines: pairs of [srcLine, destLine]
 function warp(lines, destpix) {
 	var numLines = lines.length;
 	var DSUM = [0,0];
@@ -53,7 +59,7 @@ function warp(lines, destpix) {
 }
 
 
-var lines = [[a,b]];
-var source = warp(lines, [100,100]);
-console.log("source: (" + source[0] + ", " + source[1] + ")" );
+// var lines = [[a,b]];
+// var source = warp(lines, [100,100]);
+//console.log("source: (" + source[0] + ", " + source[1] + ")" );
 

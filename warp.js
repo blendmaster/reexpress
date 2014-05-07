@@ -33,6 +33,12 @@ var images = [
   new Image,
 ];
 
+var outputs = [
+  document.getElementById('o1').getContext('2d'),
+  document.getElementById('o2').getContext('2d'),
+  document.getElementById('o3').getContext('2d'),
+]
+
 var $triangle = d3.select('#triangle')
   , $cursor = d3.select('#cursor')
   , $images = d3.selectAll('#input > .image');
@@ -230,7 +236,7 @@ function correlate(ours, t1, t2) {
         t2[i] = path.map(function (p) { return [p[0], p[1]]});
       }
     });
-    draw();
+    debounced();
   }
 }
 
@@ -263,10 +269,61 @@ function barycentric(t, cursor) {
   ];
 }
 
+// transform control paths to list of 2-tuples of lines,
+// paired by source (1) and dest (2)
+function toPairedLines(sourceControl, destControl) {
+  var ret = [];
+  sourceControl.forEach(function (s, i) {
+    var d = destControl[i];
+    for (var j = 0, len = s.length - 1; j < len; ++j) {
+      var s1 = s[j], s2 = s[j + 1]
+        , d1 = d[j], d2 = d[j + 1];
+
+      ret.push([[s1, s2], [d1, d2]]);
+    }
+  });
+  return ret;
+}
+
+var buf = document.createElement('canvas')
+buf.width = WIDTH;
+buf.height = HEIGHT;
+var btx = buf.getContext('2d')
+
+var debounced = debounce(100, draw);
 function draw() {
+  // redraw input bindings
   b1();
   b2();
   b3();
+
+  // XXX for now, warp image 1 to image2's control points
+  var sourceControl = controls[0];
+  var destControl = controls[1];
+  var pairedLines = toPairedLines(sourceControl, destControl);
+
+  var out = outputs[0];
+
+  btx.drawImage(images[0], 0, 0, WIDTH, HEIGHT);
+  // XXX sample points, because sampling every point is kinda slow
+  // TODO move this off main thread (worker), or use webGL with
+  // texture sampling.
+  out.fillRect(0, 0, 250, 250);
+  for (var i = 0; i < WIDTH; i += 10) {
+    for (var j = 0; j < HEIGHT; j += 10) {
+      var src = warp(pairedLines, [i, j]);
+      // draw source pixel to destination pixel
+      //
+      if (src[0] >= 0 && src[0] < WIDTH
+       && src[1] >= 0 && src[1] < HEIGHT) {
+
+        out.drawImage(buf, src[0], src[1], 10, 10, i, j, 10, 10);
+       } else {
+         warp(pairedLines, [i, j])
+       }
+    }
+  }
+
   // calculate barycentric coordinates of cursor
   var bary = barycentric(points, cursor);
 
@@ -279,8 +336,6 @@ function draw() {
   otx.globalAlpha = bary[2];
   otx.drawImage(images[2], 0, 0, 250, 250);
 }
-
-var debounced = debounce(10, draw);
 
 inputs.forEach(function (input, i) {
   function bind() {
