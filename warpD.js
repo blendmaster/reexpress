@@ -3,15 +3,7 @@ var b = [[1,1], [2,2]];
 
 function perpendicular(vec) {
   	var x = vec[1];
-  	if (vec[0] == 0){
-  		if (x!=0)
-  			x = x*-1;
-  		else 
-  			y = 0;
-  	}
-  	else {
-  		y = vec[0] * -1;
-  	}
+  	var y = vec[0] * -1;
   	return [x, y];
 }
 
@@ -23,7 +15,7 @@ function scalarMult(scalar, vec) {
 }
 
 
-function warp(a, b) {
+function warpLine(a, b) {
 	var P = a[0];
 	var Q = a[1];
 	var Phat = b[0];
@@ -37,22 +29,31 @@ function warp(a, b) {
 		var v =  numeric.dot( numeric.sub(dest, P), perpendicular( numeric.sub(Q,P) ) ) / magnQP;
 
 		var source = numeric.add( numeric.add( Phat, scalarMult( u, numeric.sub(Qhat,Phat) )), numeric.div(scalarMult( v, perpendicular( numeric.sub(Qhat,Phat) ) ), magnQPhat ) );
-		return source;
+		var displacement = numeric.sub(source, dest);
+		var p = 0;
+		var a = 0.001;
+		var b = 0.3;
+		var weight = Math.pow(Math.pow(magnQP, p) / (a + v), b);
+		return [displacement, weight];
 	}
 }
 
+function warp(lines, destpix) {
+	var numLines = lines.length;
+	var DSUM = [0,0];
+	var weightsum = 0;
+	for (var i = 0; i < numLines; i++) {
+		var warper = warpLine(lines[i][0], lines[i][1]);
+		var dw = warper(destpix);
+		DSUM = numeric.add(DSUM, scalarMult(dw[1], dw[0]));
+		weightsum += dw[1];
+	}
+	var sourcepix = numeric.add(destpix, numeric.div(DSUM, weightsum));
+	return sourcepix;
+}
 
-var warper = warp(a, b);
-var dest  = warper([0,0]);
-console.log(dest[0] + " " + dest[1]);
 
-// for (var i = 0; i < width; ++i) {
-// 	for (var j = 0; j < height; ++j) {
-// 		var dest = warper([i, j]);
-// 		var dx = dest[0], dy = dest[1];
+var lines = [[a,b]];
+var source = warp(lines, [100,100]);
+console.log("source: (" + source[0] + ", " + source[1] + ")" );
 
-// 		destinationImage.setPixel(i, j, sourceImage.getPixel(dx, dy));
-// 		console.log("i: " + i + " j: " + j + " " + "dx: " + dx + " dy: " + dy + "\n");
-// 	}
-
-// }
