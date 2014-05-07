@@ -148,9 +148,6 @@ function bindEditor(paths, svgId, callback) {
     var p = s.selectAll('.point').data(function (d) { return d });
     p.exit().remove();
     p.enter().append('circle')
-      .attr('class', function (_, i, j) {
-        return 'point p-' + i + '-' + j;
-      })
       // parallel hover
       .on('mouseenter', function (_, i, j) {
         d3.selectAll('.p-' + i + '-' + j)
@@ -162,6 +159,10 @@ function bindEditor(paths, svgId, callback) {
       })
       .attr('r', 15)
       .call(pointDrag);
+
+    p.attr('class', function (_, i, j) {
+      return 'point p-' + i + '-' + j;
+    })
     p.attr('cx', function (d) { return d[0] });
     p.attr('cy', function (d) { return d[1] });
   }
