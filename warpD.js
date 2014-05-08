@@ -59,18 +59,67 @@ function warpLine(dest, src, point, p, a, b) {
   return [displacement, weight];
 }
 
+// 2d vector specializations:
+
+function add(a, b) {
+  return [a[0] + b[0], a[1] + b[1]];
+}
+
+function sub(a, b) {
+  return [a[0] - b[0], a[1] - b[1]];
+}
+
+function dot(a, b) {
+  return a[0] * b[0] + a[1] * b[1];
+}
+
+function mag(v) {
+  return Math.sqrt(v[0] * v[0] + v[1] * v[1]);
+}
+
 // lines: pairs of [destLine, srcLine]
 // destpix: [x, y]
 // p, a, b are multiline weight parameters
 function warp(lines, destpix, p, a, b) {
   var numLines = lines.length;
-  var DSUM = [0,0];
+  var us = 0, vs = 0;
   var weightsum = 0;
   for (var i = 0; i < numLines; i++) {
-    var dw = warpLine(lines[i][0], lines[i][1], destpix, p, a, b);
-    DSUM = numeric.add(DSUM, scalarMult(dw[1], dw[0]));
-    weightsum += dw[1];
+    var P = lines[i][0][0];
+    var Q = lines[i][0][1];
+    var Phat = lines[i][1][0];
+    var Qhat = lines[i][1][1];
+
+    var pq = sub(Q,P);
+    var pqhat = sub(Qhat,Phat);
+
+    var pd = sub(destpix, P);
+
+    var magnQP = mag(pq);
+    var magnQPhat = mag(pqhat);
+
+    var u = dot(pd, pq) / Math.pow(magnQP, 2);
+    var v = dot(pd, perpendicular(pq)) / magnQP;
+
+    var source =
+      add(
+        add(Phat, scalarMult(u, pqhat)),
+        numeric.div(
+          scalarMult(v, perpendicular(pqhat)),
+          magnQPhat
+        )
+      );
+
+    var displacement = sub(source, destpix);
+
+    var weight = Math.pow(
+      Math.abs(Math.pow(magnQP, p) / (a + v)),
+      b
+    );
+
+    us += displacement[0] * weight;
+    vs += displacement[1] * weight;
+    weightsum += weight;
   }
-  var sourcepix = numeric.add(destpix, numeric.div(DSUM, weightsum));
-  return sourcepix;
+  return add(destpix, [us/weightsum, vs/weightsum]);
 }
