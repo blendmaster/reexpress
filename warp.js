@@ -429,6 +429,16 @@ var drag = d3.behavior.drag()
 $cursor.call(drag);
 
 $cursor.attr('cx', cursor[0]).attr('cy', cursor[1]);
+
+d3.select('#input').on('click', function () {
+  var c = d3.mouse(this);
+  console.log(c);
+  cursor[0] = c[0];
+  cursor[1] = c[1];
+  $cursor.attr('cx', cursor[0]).attr('cy', cursor[1]);
+  debounced();
+});
+
 draw();
 
 function dist(a, b) {
