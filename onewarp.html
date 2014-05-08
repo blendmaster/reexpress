@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang=en id=onewarp>
+<meta charset=utf-8>
+<link rel=stylesheet href=style.css>
+<title>Beier-Neely Morphing</title>
+
+<div>
+  <label>Image<input type=file id=file></label>
+</div>
+
+<div>
+  <label>p: <input type=range id=p min=0 max=1 value=1 step=0.01></label>
+  <label>a: <input type=range id=a min=0 max=1 value=0 step=0.01></label>
+  <label>b: <input type=range id=b min=0.5 max=2 value=1 step=0.01></label>
+  <label>Show Lines: <input type=checkbox id=show-lines></label>
+</div>
+
+<div>
+  <svg id=p0 width=500 height=500>
+    <image class=image id=simg x=0 y=0 width=500 height=500></image>
+  </svg>
+  <div id=overlay>
+    <canvas id=output width=500 height=500>
+      Yo, you need a modern browser that works with
+      canvas elements!
+    </canvas>
+    <svg id=input width=500 height=500>
+    </svg>
+  </div>
+</div>
+
+<footer>
+  Demo of Beier-Neely morphing.
+  Authored by Steven Ruppert and Daria Tolmacheva, 2014.
+  <a href=https://github.com/blendmaster/reexpress>Source on Github.</a>
+</footer>
+
+<script src=util.js></script>
+<script src=numeric-1.2.6.min.js></script>
+<script src=d3.min.js></script>
+<script src=warpD.js></script>
+<script src=onewarp.js></script>

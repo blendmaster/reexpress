@@ -21,9 +21,9 @@ function warpLine(dest, src, point, p, a, b) {
   var Qhat = src[1];
 
   var magnQP =  Math.sqrt(
-      Math.pow(Q[0]-P[0], 2) + Math.pow(Q[1]-P[1], 2) );
+      Math.pow(Q[0]-P[0], 2) + Math.pow(Q[1]-P[1], 2));
   var magnQPhat = Math.sqrt(
-      Math.pow(Qhat[0]-Phat[0], 2) + Math.pow(Qhat[1]-Phat[1], 2) );
+      Math.pow(Qhat[0]-Phat[0], 2) + Math.pow(Qhat[1]-Phat[1], 2));
   var u =
     numeric.dot(
      numeric.sub(point, P),
