@@ -6,6 +6,7 @@ body {
 .line {
   stroke: red;
   fill: none;  
+  stroke-width: 3px;
 }
 .path, .pending, .apath {
   stroke: red;
@@ -21,6 +22,7 @@ body {
 .shape {
   stroke: blue;
   fill: none;  
+  stroke-width: 3px;
 }
 .point {
   fill: rgba(0,0,0,0.05);

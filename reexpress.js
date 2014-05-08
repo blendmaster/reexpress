@@ -420,11 +420,18 @@ function toPairedLines(s, d) {
 }
 
 // initial draw
+['a', 'b', 'p'].forEach(function(id) {
+  document.getElementById(id).addEventListener('input', dragdraw);
+})
 draw();
 function draw() {
   $lines.attr('d', line);
   $shapes.attr('d', shape);
   $points.attr('cx', x).attr('cy', y);
+
+  var aa = parseFloat(document.getElementById('a').value);
+  var bb = parseFloat(document.getElementById('b').value);
+  var pp = parseFloat(document.getElementById('p').value);
 
   if (closest != null) {
     // warp
@@ -444,7 +451,7 @@ function draw() {
       var SAMPLE = 4;
       for (var i = 0; i < WIDTH; i += SAMPLE) {
         for (var j = 0; j < HEIGHT; j += SAMPLE) {
-          var src = warp(pairedLines, [i, j], 1 /* p */, 0/*a*/, 1/*b*/);
+          var src = warp(pairedLines, [i, j], pp /* p */, aa/*a*/, bb/*b*/);
           // draw source pixel to destination pixel
           if (src[0] >= 0 && src[0] < WIDTH
            && src[1] >= 0 && src[1] < HEIGHT) {
@@ -497,3 +504,12 @@ bind();
 document.getElementById('reset').addEventListener('click', function () {
   setTimeout(bind, 100);
 });
+
+document.getElementById('show').addEventListener('click', function () {
+  d3.select('#input').style('opacity',
+    this.checked ? null : 0);
+})
+
+d3.select('#input').style('opacity',
+  document.getElementById('show').checked ? null : 0);
+
