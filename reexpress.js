@@ -167,19 +167,19 @@ var points = [].concat.apply([], lines.concat(shapes));
 
 function pointsOf(input) {
   return [].concat(
-    input.eyes.left.eye,
-    input.eyes.right.eye,
-    input.mouth.outerLips,
-    input.mouth.innerLips,
     input.eyes.left.brow,
     input.eyes.right.brow,
     input.eyes.left.lid,
-    input.eyes.right.lid
+    input.eyes.right.lid,
     // input.mouth.nostrils
     // XXX ignore for now
     //input.mouth.leftCheek,
     //input.mouth.rightCheek,
     //input.mouth.teeth
+    input.eyes.left.eye,
+    input.eyes.right.eye,
+    input.mouth.outerLips,
+    input.mouth.innerLips
   );
 }
 
@@ -199,6 +199,10 @@ var drag = d3.behavior.drag()
     d3.select(this)
       .attr('cx', d[0] = d3.event.x)
       .attr('cy', d[1] = d3.event.y);
+    // reseat cursor
+    var pos = dimOf(input);
+    $cursor.attr('cx', xscale(pos[0])).attr('cy', yscale(pos[1]));
+
     dragdraw();
   });
 
@@ -228,8 +232,6 @@ function cov(x, y) {
   }));
 }
 
-var $cursor = d3.select('#cursor');
-
 function dimOf(input) {
   // use first singular value set as 2d point
   // pretty sure this is equivalent to PCA -> 2 dimensions
@@ -242,6 +244,7 @@ for (var f in simba) {
 
   ps.push({
     image: f,
+    control: inp,
     dim: dimOf(inp)
   });
 }
@@ -253,9 +256,9 @@ var yscale = d3.scale.linear()
   .domain(d3.extent(ps, function (it) { return it.dim[1] }))
   .range([450, 50]);
 
-var tri = d3.geom.delaunay(ps.map(function (it) { return [xscale(it.dim[0]), yscale(it.dim[1])] }))
-  .map(function(d) { return "M" + d.join("L") + "Z"; });
-var s =d3.select('#space').selectAll('.tri').data(tri)
+var tri = d3.geom.delaunay(ps.map(function (it) { return it.dim }))
+var s =d3.select('#space').selectAll('.tri').data(
+    tri.map(function(d) { return "M" + d.map(function (it) { return [xscale(it[0]), yscale(it[1])] }).join("L") + "Z"; }))
 s.enter().append('path').attr('class', 'tri')
 s.attr('d', String);
 
@@ -268,6 +271,92 @@ s.enter().append('image')
   .attr('xlink:href', function (it) { return 'templates/simba/' + it.image + '.png'; })
 s.attr('x', function (it) { return xscale(it.dim[0]) - 25})
 s.attr('y', function (it) { return yscale(it.dim[1]) - 25})
+
+function dist(a, b) {
+  return Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2));
+}
+// ((x1, y1), (x2, y2), (x3, y3)) -> (x, y) -> (u, v, w)
+// w is technically redundant, since u + v + w = 1
+// https://en.wikipedia.org/wiki/Barycentric_coordinate_system#Converting_to_barycentric_coordinates
+function barycentric(t, cursor) {
+  var x = cursor[0], y = cursor[1]
+    , x1 = t[0][0], y1 = t[0][1]
+    , x2 = t[1][0], y2 = t[1][1]
+    , x3 = t[2][0], y3 = t[2][1]
+    , det = ((y2 - y3) * (x1 - x3) + (x3 - x2) * (y1 - y3))
+    , u, v;
+
+  return [
+    u = ((y2 - y3) * (x - x3) + (x3 - x2) * (y - y3)) / det,
+    v = ((y3 - y1) * (x - x3) + (x1 - x3) * (y - y3)) / det,
+    1 - u - v
+  ];
+}
+
+function close(a, b) {
+  return Math.abs(a - b) < 0.0001;
+}
+
+var $cursor = d3.select('#cursor');
+d3.select('#space').on('click', function () {
+  var pos = d3.mouse(this);
+  var x = xscale.invert(pos[0])
+    , y = yscale.invert(pos[1]);
+
+  var p = [x, y];
+
+  // find containing triangle
+  var t = tri.filter(function (tr) {
+    var w = barycentric(tr, p);
+    return w[0] > 0 && w[0] < 1
+        && w[1] > 0 && w[1] < 1
+        && w[2] > 0 && w[2] < 1;
+  });
+
+  // find corresponding points, which
+  // d3 doesn't make easy.
+  if (t[0] != null) {
+    var closest = t[0].map(function (coord) {
+      for (var i = 0, len = ps.length; i < len; ++i) {
+        if (close(coord[0], ps[i].dim[0])
+         && close(coord[1], ps[i].dim[1])) {
+           return ps[i];
+         }
+      }
+    });
+
+    // okay, mutate input to match linear combination
+    // of three closest, weight by barycentric
+    var weights = barycentric(t[0], p);
+
+    var avgp = averagePoints(
+        pointsOf(closest[0].control),
+        pointsOf(closest[1].control),
+        pointsOf(closest[2].control),
+        weights);
+
+    // map back onto input
+    avgp.forEach(function (av, i) {
+      // points is by reference, so we can mutate
+      points[i][0] = av[0];
+      points[i][1] = av[1];
+    });
+
+    $cursor.attr('cx', pos[0]).attr('cy', pos[1]);
+
+    draw();
+  }
+})
+
+function averagePoints(a, b, c, w) {
+  return a.map(function (aa, i) {
+    return [
+      w[0] * aa[0] + w[1] * b[i][0] + w[2] * c[i][0],
+      w[0] * aa[1] + w[1] * b[i][1] + w[2] * c[i][1],
+    ];
+  });
+}
+
 // initial draw
 draw();
 function draw() {
