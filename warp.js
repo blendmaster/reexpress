@@ -317,6 +317,8 @@ var debounced = debounce(100, draw);
 ['a', 'b', 'p'].forEach(function(id) {
   document.getElementById(id).addEventListener('input', debounced);
 })
+var showLines = document.getElementById('show-lines')
+showLines.addEventListener('click', debounced);
 function draw() {
   // redraw input bindings
   b1();
@@ -346,16 +348,19 @@ function draw() {
     // since the actual image is unscaled, draw the image to
     // be sampled onto a canvas with correct scaling
     btx.drawImage(images[p], 0, 0, WIDTH, HEIGHT);
-    btx.strokeStyle = 'green';
-    btx.lineWidth = 5;
-    for (var i = 0, len = sourceControl.length; i < len; ++i) {
-      var path = sourceControl[i];
-      btx.beginPath();
-      btx.moveTo(path[0][0], path[0][1]);
-      for (var j = 1, len2 = path.length; j < len2; ++j) {
-        btx.lineTo(path[j][0], path[j][1]);
+
+    if (showLines.checked) {
+      btx.strokeStyle = 'green';
+      btx.lineWidth = 5;
+      for (var i = 0, len = sourceControl.length; i < len; ++i) {
+        var path = sourceControl[i];
+        btx.beginPath();
+        btx.moveTo(path[0][0], path[0][1]);
+        for (var j = 1, len2 = path.length; j < len2; ++j) {
+          btx.lineTo(path[j][0], path[j][1]);
+        }
+        btx.stroke();
       }
-      btx.stroke();
     }
 
     // XXX sample points, because sampling every point is kinda slow
