@@ -309,11 +309,8 @@ function image(src) {
   return img;
 }
 
-document.getElementById('save-eyes').addEventListener('click', function () {
-  prompt('eyes', JSON.stringify(input.eyes));
-});
-document.getElementById('save-mouth').addEventListener('click', function () {
-  prompt('mouth', JSON.stringify(input.mouth));
+document.getElementById('save').addEventListener('click', function () {
+  prompt('', JSON.stringify(input));
 });
 
 var inimg = document.getElementById('inimg');
