@@ -36,10 +36,19 @@ footer {
   fill: none;
 }
 
-#cursor {
+#cursor, #cursordot {
   cursor: pointer;
 }
 
+#cursordot {
+  fill: red;
+}
+
+.tri {
+  fill: none;
+  stroke: blue;
+
+}
 .hover {
   fill: rgba(0, 0, 255, 0.3);
 }

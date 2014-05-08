@@ -123,96 +123,6 @@ var
         [243, 389]
       ]
     }
-  },
-  // TODO for other templates, parameterize this
-  // by a folder id or something, and load points from JSON,
-  // instead of writing this out manually.
-  templates = {
-    face: {
-      image: image("models/face.png"),
-      points: [
-        [0, 0],
-        [0, 0],
-        [0, 0],
-        [0, 0],
-      ]
-    },
-    eyes: [
-      {
-        image: image("models/eye1.png"),
-        points: [
-          [0, 0],
-          [0, 0],
-          [0, 0],
-          [0, 0],
-        ]
-      },
-      {
-        image: image("models/eye2.png"),
-        points: [
-          [0, 0],
-          [0, 0],
-          [0, 0],
-          [0, 0],
-        ]
-      },
-      {
-        image: image("models/eye3.png"),
-        points: [
-          [0, 0],
-          [0, 0],
-          [0, 0],
-          [0, 0],
-        ]
-      },
-      {
-        image: image("models/eye4.png"),
-        points: [
-          [0, 0],
-          [0, 0],
-          [0, 0],
-          [0, 0],
-        ]
-      },
-    ],
-    lips: [
-      {
-        image: image("models/lips1.png"),
-        points: [
-          [0, 0],
-          [0, 0],
-          [0, 0],
-          [0, 0],
-        ]
-      },
-      {
-        image: image("models/lips2.png"),
-        points: [
-          [0, 0],
-          [0, 0],
-          [0, 0],
-          [0, 0],
-        ]
-      },
-      {
-        image: image("models/lips3.png"),
-        points: [
-          [0, 0],
-          [0, 0],
-          [0, 0],
-          [0, 0],
-        ]
-      },
-      {
-        image: image("models/lips4.png"),
-        points: [
-          [0, 0],
-          [0, 0],
-          [0, 0],
-          [0, 0],
-        ]
-      },
-    ]
   };
 
 /*
@@ -238,10 +148,10 @@ var lines = [
   input.eyes.right.brow,
   input.eyes.left.lid,
   input.eyes.right.lid,
-  input.mouth.nostrils,
-  input.mouth.leftCheek,
-  input.mouth.rightCheek,
-  input.mouth.teeth,
+  // input.mouth.nostrils,
+  // input.mouth.leftCheek,
+  // input.mouth.rightCheek,
+ // input.mouth.teeth,
 ];
 
 // drawn as closed shapes
@@ -254,6 +164,24 @@ var shapes = [
 
 // all points, for moving (flap mapped)
 var points = [].concat.apply([], lines.concat(shapes));
+
+function pointsOf(input) {
+  return [].concat(
+    input.eyes.left.eye,
+    input.eyes.right.eye,
+    input.mouth.outerLips,
+    input.mouth.innerLips,
+    input.eyes.left.brow,
+    input.eyes.right.brow,
+    input.eyes.left.lid,
+    input.eyes.right.lid
+    // input.mouth.nostrils
+    // XXX ignore for now
+    //input.mouth.leftCheek,
+    //input.mouth.rightCheek,
+    //input.mouth.teeth
+  );
+}
 
 // setup dragging
 var dragdraw = debounce(100, draw);
@@ -292,9 +220,56 @@ var y = function (d) { return d[1]; };
 var line = d3.svg.line();
 var shape = function (d) { return line(d) + "Z"; };
 
+function cov(x, y) {
+  var xm = d3.mean(x);
+  var ym = d3.mean(y);
+  return d3.sum(d3.range(x.length).map(function (i) {
+    return (x[i] - xm) * (y[i] - ym);
+  }));
+}
+
+var $cursor = d3.select('#cursor');
+
+function dimOf(input) {
+  // use first singular value set as 2d point
+  // pretty sure this is equivalent to PCA -> 2 dimensions
+  return numeric.svd(pointsOf(input)).S;
+}
+
+var ps = []
+for (var f in simba) {
+  var inp = simba[f];
+
+  ps.push({
+    image: f,
+    dim: dimOf(inp)
+  });
+}
+
+var xscale = d3.scale.linear()
+  .domain(d3.extent(ps, function (it) { return it.dim[0] }))
+  .range([50, 450]);
+var yscale = d3.scale.linear()
+  .domain(d3.extent(ps, function (it) { return it.dim[1] }))
+  .range([450, 50]);
+
+var tri = d3.geom.delaunay(ps.map(function (it) { return [xscale(it.dim[0]), yscale(it.dim[1])] }))
+  .map(function(d) { return "M" + d.join("L") + "Z"; });
+var s =d3.select('#space').selectAll('.tri').data(tri)
+s.enter().append('path').attr('class', 'tri')
+s.attr('d', String);
+
+var s =d3.select('#space').selectAll('.image').data(ps)
+s.exit().remove();
+s.enter().append('image')
+  .attr('class', 'image')
+  .attr('width', 50)
+  .attr('height', 50)
+  .attr('xlink:href', function (it) { return 'templates/simba/' + it.image + '.png'; })
+s.attr('x', function (it) { return xscale(it.dim[0]) - 25})
+s.attr('y', function (it) { return yscale(it.dim[1]) - 25})
 // initial draw
 draw();
-
 function draw() {
   $lines.attr('d', line);
   $shapes.attr('d', shape);
