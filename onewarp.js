@@ -288,3 +288,28 @@ draw();
 function dist(a, b) {
   return Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2));
 }
+var src = d3.select('#p0').append('circle').attr('r', 5).attr('id', 'src')
+src.style('opacity', 0)
+
+// show correspondences
+d3.select('#input')
+.on('mouseenter', function () {
+  src.style('opacity', 1);
+})
+.on('mouseleave', function () {
+  src.style('opacity', 0);
+})
+.on('mousemove', function () {
+  var destpix = d3.mouse(this);
+
+  var sourceControl = controls[0];
+  var pairedLines = toPairedLines(controls[1], sourceControl);
+  var aa = parseFloat(document.getElementById('a').value);
+  var bb = parseFloat(document.getElementById('b').value);
+  var pp = parseFloat(document.getElementById('p').value);
+
+  var source = warp(pairedLines, destpix, pp, aa, bb);
+  src.attr('cx', source[0])
+  src.attr('cy', source[1])
+
+})

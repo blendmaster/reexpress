@@ -75,9 +75,8 @@ footer {
 
 }
 
-.pline {
+#src {
   pointer-events: none;
-  stroke: blue;
-  stroke-width: 3px;
+  fill: blue;
 
 }
