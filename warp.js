@@ -329,7 +329,6 @@ function draw() {
   var bb = parseFloat(document.getElementById('b').value);
   var pp = parseFloat(document.getElementById('p').value);
 
-
   // calculate barycentric coordinates of cursor
   var bary = barycentric(points, cursor);
 

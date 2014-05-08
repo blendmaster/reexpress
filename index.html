@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang=en>
+<html lang=en id=reexpress>
 <meta charset=utf-8>
 <link rel=stylesheet href=style.css>
 <title>Reexpress</title>
@@ -13,17 +13,22 @@
 </div>
 
 <div>
-  <svg id=space width=500 height=500>
-    <path id=tri></path>
-    <circle id=cursor r=5 cx=250 cy=250></circle>
-  </svg>
-  <svg id=input width=500 height=500>
-    <image id=sinimg x=0 y=0 width=500 height=500></image>
-  </svg>
-  <canvas id=output width=500 height=500>
-    Yo, you need a modern browser that works with
-    canvas elements!
-  </canvas>
+  <div id=spacecon>
+    <svg id=space width=500 height=500>
+      <g id=tri></g>
+      <g id=space-img></g>
+      <circle id=cursor r=5 cx=250 cy=250></circle>
+    </svg>
+  </div>
+  <div id=overlay>
+    <canvas id=output width=500 height=500>
+      Yo, you need a modern browser that works with
+      canvas elements!
+    </canvas>
+    <svg id=input width=500 height=500>
+      <image id=sinimg x=0 y=0 width=500 height=500></image>
+    </svg>
+  </div>
 </div>
 
 <footer>
@@ -36,6 +41,7 @@
 <script src=numeric-1.2.6.min.js></script>
 <script src=util.js></script>
 <script src=pca.js></script>
+<script src=warpD.js></script>
 <script src=reduceDim.js></script>
 <script src=d3.min.js></script>
 <script src=reexpress.js></script>

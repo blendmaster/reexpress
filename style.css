@@ -47,8 +47,20 @@ footer {
 .tri {
   fill: none;
   stroke: blue;
-
 }
+
 .hover {
   fill: rgba(0, 0, 255, 0.3);
+}
+
+#overlay, #spacecon {
+  position: relative;
+  display: inline-block;
+}
+
+#reexpress #input {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 10;
 }
