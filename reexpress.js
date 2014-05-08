@@ -125,7 +125,11 @@ var
     }
   };
 
-input = simba[Object.keys(simba)[0]];
+// XXX have to reload page to change model
+var tname = document.getElementById('template').value;
+var TEMPLATE = window[tname];
+
+input = TEMPLATE[Object.keys(TEMPLATE)[0]];
 
 /*
 View:
@@ -243,12 +247,12 @@ function dimOf(input) {
 }
 
 var ps = []
-for (var f in simba) {
-  var inp = simba[f];
+for (var f in TEMPLATE) {
+  var inp = TEMPLATE[f];
 
   ps.push({
     image: f,
-    cimage: image('templates/simba/' + f + '.png'),
+    cimage: image('templates/' + tname + '/' + f + '.png'),
     control: inp,
     dim: dimOf(inp)
   });
@@ -273,7 +277,7 @@ s.enter().append('image')
   .attr('class', 'image')
   .attr('width', 50)
   .attr('height', 50)
-  .attr('xlink:href', function (it) { return 'templates/simba/' + it.image + '.png'; })
+  .attr('xlink:href', function (it) { return 'templates/' + tname + '/' + it.image + '.png'; })
 s.attr('x', function (it) { return xscale(it.dim[0]) - 25})
 s.attr('y', function (it) { return yscale(it.dim[1]) - 25})
 
