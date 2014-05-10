@@ -27,6 +27,10 @@ To add a new control line, click and drag on one of the images. To add a point t
 an existing line, click somewhere on the point. To remove a point, drag it off the
 canvas (to remove a line, drag all its points off the canvas).
 
+![one](screenshots/onewarp1.png)
+
+![two](screenshots/onewarp2.png)
+
 ### Morphing smoothly between images
 
 http://blendmaster.github.io/reexpress/warp.html
@@ -45,6 +49,8 @@ the effect of the `b` parameter for multiline warps more apparent (at
 high values of `p`, the green lines correspond better at the cost of artifacts
 in the rest of the blended image.
 
+![warp](screenshots/warp.png)
+
 ### Morphing smoothly between multiple expressions
 
 http://blendmaster.github.io/reexpress/index.html
@@ -58,8 +64,14 @@ triangulation between these points is also shown. The black cursor shows where t
 output image on the right is generated from. Inside of a triangle, the three vertices
 are blended together in the same manner as the 3-image demo.
 
+![warp2](screenshots/warp1.png)
+
+![warp1](screenshots/warp2.png)
+
 To load the "mike" character, select the character from the dropdown menu, and refresh
 the page.
+
+![mike](screenshots/warp3.png)
 
 Unfortunately, the expression can only be controlled by the mouse cursor. As computer
 vision algorithms and webcam support for HTML5 increases, we hope to implement
