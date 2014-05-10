@@ -78,20 +78,40 @@ vision algorithms and webcam support for HTML5 increases, we hope to implement
 an active appearence model or active shape model to drive the warping from live
 webcam images, like the original papers.
 
+Our images are warped in their entirety, which means that the extremities of the
+image don't have good correspondence (doesn't look convincing). The original
+paper only warps the eye and mouth regions, with better looking results.
+
 ## Implementation details
 
 The warping algorithm iteself is implemented in plain javascript, using the
 canvas API to pull out pixels from the input images. Unfortunately it is not
 very fast, so the various demos use different levels of subsampling instead of
-warping every single pixel on the canvas.
+warping every single pixel on the canvas. We use the numeric.js library for
+some of the vector operations required.
+
+The warping algorithm could also be implemented on the GPU using webGL, by
+warping only a small set of triangle coordinates, and using the texture
+interpolation to warp the pixels in place. For a real-time version of this project,
+such a solution is probably necessary.
+
+Another thing to do would be to move the warping off the main thread and in to
+ a Web Worker, which could also allow for incremental refinement, e.g.,
+first show a crude subsampled warp, then progressively show better versions
+when they are calculated.
 
 The editing of the control points is done using SVG and d3. The points are bound
-to javascript arrays internally, which drive the warping algorithm.
+to javascript arrays internally, which drive the warping algorithm. After the
+lines are moved (or other parameters to the algorithm are changed), the
+warp is updated after a short debouncing delay.
 
-The delaunay triangulation is also done by d3.
+The delaunay triangulation is done by d3's built in voronoi libray.
 
 For our "simba" and "mike" data sets, we hand-picked the control points and
 stored them as JSON, in the `simba.js` and `mike.js` files.
+
+We used the same set of control points as detailed in the paper. The format
+of the JSON arrays is documented in `reexpress.js`.
 
 [0]: http://gfx.cs.princeton.edu/gfx/pubs/Buck_2000_PHA/index.php
 [1]: http://www.hammerhead.com/thad/morph.html
